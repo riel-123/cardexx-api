@@ -13,8 +13,9 @@ export class TransactionsService {
 
   async commit(body: any) {
     const { outgoing, incoming, transaction } = body || {};
-    if (!Array.isArray(outgoing) || !Array.isArray(incoming) || !transaction || !['SALE','TRADE_IN'].includes(transaction.type) || (!outgoing.length && !incoming.length)) throw new BadRequestException('Invalid transaction');
+    if (!Array.isArray(outgoing) || !Array.isArray(incoming) || !transaction || !['SALE','TRADE_IN','PURCHASE'].includes(transaction.type) || (!outgoing.length && !incoming.length)) throw new BadRequestException('Invalid transaction');
     if (transaction.type === 'SALE' && (outgoing.length !== 1 || incoming.length)) throw new BadRequestException('Invalid sale');
+    if (transaction.type === 'PURCHASE' && (outgoing.length || incoming.length !== 1)) throw new BadRequestException('Invalid purchase');
     return this.prisma.$transaction(async (db) => {
       const updated = [];
       const created = [];
@@ -30,7 +31,7 @@ export class TransactionsService {
         created.push(await db.card.create({data:{tcg,name,setName,number,language,category,gradingCompany,grade,storageLocation,buyPrice,targetPrice,imageUrl,status:'IN_STOCK'}}));
       }
       const {type,tcg,date,summary,revenue,costBasis,netProfit,notes} = transaction;
-      if (![revenue,costBasis,netProfit].every(Number.isSafeInteger) || revenue-costBasis !== netProfit) throw new BadRequestException('Invalid amounts');
+      if (![revenue,costBasis,netProfit].every(Number.isSafeInteger) || (type === 'PURCHASE' ? (revenue !== 0 || netProfit !== 0 || costBasis !== created[0]?.buyPrice) : revenue-costBasis !== netProfit)) throw new BadRequestException('Invalid amounts');
       const saved = await db.transaction.create({data:{type,tcg,date,summary,revenue,costBasis,netProfit,notes}});
       return {updated,created,transaction:saved};
     });
