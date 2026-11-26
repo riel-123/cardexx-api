@@ -1,0 +1,41 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Card {
+  id              String   @id @default(cuid())
+  tcg             String   @default("POKEMON")
+  name            String
+  setName         String?  @default("")
+  number          String   @default("-")
+  language        String   @default("JP")
+  category        String   @default("Single Card")
+  gradingCompany  String   @default("Raw")
+  grade           String   @default("Raw NM/M")
+  storageLocation String   @default("Binder 1 - High End")
+  buyPrice        Int      @default(0)
+  targetPrice     Int      @default(0)
+  soldPrice       Int?
+  status          String   @default("IN_STOCK")
+  imageUrl        String?  @default("")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Transaction {
+  id        String   @id @default(cuid())
+  type      String
+  tcg       String   @default("POKEMON")
+  date      String
+  summary   String
+  revenue   Int      @default(0)
+  costBasis Int      @default(0)
+  netProfit Int      @default(0)
+  notes     String?  @default("")
+  createdAt DateTime @default(now())
+}
