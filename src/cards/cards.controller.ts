@@ -10,6 +10,11 @@ export class CardsController {
     return this.cardsService.findAll();
   }
 
+  @Post("images")
+  uploadImage(@Body() body: any) {
+    return this.cardsService.uploadImage(body?.image);
+  }
+
   @Post()
   create(@Body() body: any) {
     return this.cardsService.create(body);
