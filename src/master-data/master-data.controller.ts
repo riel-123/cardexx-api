@@ -19,8 +19,8 @@ export class MasterDataController {
   @Get()
   async list() {
     const [categories, storage] = await Promise.all([
-      this.prisma.category.findMany({ where: { archived: false }, orderBy: { name: 'asc' } }),
-      this.prisma.storageLocation.findMany({ where: { archived: false }, orderBy: { name: 'asc' } })
+      this.prisma.$queryRaw<{name: string}[]>(Prisma.sql`SELECT name FROM public."Category" WHERE archived = false ORDER BY name ASC`),
+      this.prisma.$queryRaw<{name: string}[]>(Prisma.sql`SELECT name FROM public."StorageLocation" WHERE archived = false ORDER BY name ASC`)
     ]);
     return { categories: categories.map(x => x.name), storageLocations: storage.map(x => x.name) };
   }
