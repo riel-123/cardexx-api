@@ -22,6 +22,9 @@ model Card {
   targetPrice     Int      @default(0)
   soldPrice       Int?
   status          String   @default("IN_STOCK")
+  acquisitionSource String?
+  acquisitionTransactionId String?
+  disposalTransactionId String?
   imageUrl        String?  @default("")
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
@@ -36,6 +39,7 @@ model Transaction {
   revenue   Int      @default(0)
   costBasis Int      @default(0)
   netProfit Int      @default(0)
+  cashDelta Int?
   notes     String?  @default("")
   createdAt DateTime @default(now())
 }
