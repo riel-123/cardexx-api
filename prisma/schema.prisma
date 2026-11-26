@@ -39,3 +39,12 @@ model Transaction {
   notes     String?  @default("")
   createdAt DateTime @default(now())
 }
+model StorageLocation {
+  name     String  @id
+  archived Boolean @default(false)
+}
+
+model Category {
+  name     String  @id
+  archived Boolean @default(false)
+}
