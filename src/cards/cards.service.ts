@@ -20,7 +20,16 @@ export class CardsService {
         method: 'POST', headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'image/jpeg', 'x-upsert': 'false', 'Cache-Control': 'max-age=31536000' }, body: new Uint8Array(bytes), signal: AbortSignal.timeout(15000)
       });
     } catch { throw new BadGatewayException('Storage tidak dapat dihubungi'); }
-    if (!response.ok) throw new BadGatewayException(`Storage upload gagal (${response.status})`);
+    if (!response.ok) {
+      const raw = await response.text().catch(() => '');
+      let detail = 'Unknown storage error';
+      try {
+        const parsed = JSON.parse(raw);
+        detail = String(parsed.message || parsed.error || parsed.code || detail);
+      } catch { /* Do not log raw HTML or credentials. */ }
+      console.error('[CARDEXX Storage]', response.status, detail.split(key).join('[REDACTED]').slice(0, 300));
+      throw new BadGatewayException(`Storage upload gagal (${response.status})`);
+    }
     return { url: `${base}/storage/v1/object/public/${path}` };
   }
 
